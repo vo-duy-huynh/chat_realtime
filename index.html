@@ -1,0 +1,45 @@
+<!-- public/index.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Realtime Chat</title>
+</head>
+<body>
+  <div>
+    <ul id="messages"></ul>
+  </div>
+  <input id="messageInput" autocomplete="off" /><button onclick="sendMessage()">Send</button>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <script>
+    const socket = io();
+
+    socket.on('newMessage', (message) => {
+      $('#messages').append($('<li>').text(`${message.sender}: ${message.text}`));
+    });
+
+    socket.on('searchResult', (results) => {
+      $('#messages').empty();
+      results.forEach((result) => {
+        $('#messages').append($('<li>').text(`${result._source.sender}: ${result._source.text}`));
+      });
+    });
+
+    function sendMessage() {
+      const message = {
+        sender: 'User1', // replace with actual user
+        receiver: 'User2', // replace with actual user
+        text: $('#messageInput').val(),
+      };
+      socket.emit('sendMessage', message);
+    }
+
+    // Example: search messages on load
+    socket.emit('searchMessages', { user: 'User1' }); // replace with actual user
+  </script>
+</body>
+</html>
